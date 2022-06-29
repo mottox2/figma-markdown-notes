@@ -5,7 +5,8 @@ import { once, showUI } from '@create-figma-plugin/utilities'
 const { widget } = figma
 const { AutoLayout, Text, useSyncedState, usePropertyMenu, Fragment, Rectangle } = widget
 import { Root } from 'remark-parse/lib'
-import type { ListItem, Content } from 'mdast'
+import type { Content } from 'mdast'
+import produce from "immer"
 
 const defaultText = '# Hello World\nThis is figma widget\n- [ ] My Task\n- [x] done task'
 
@@ -68,7 +69,7 @@ function Notepad () {
         spacing={8}
       >
         {data && data.children.map((child, pos) => {
-          return render(child, pos.toString())
+          return render(child, setData, [pos])
         })}
         <AutoLayout
           direction='vertical'
@@ -88,26 +89,9 @@ function Notepad () {
   )
 }
 
-const ListItem = (props: {
-  node: ListItem
-  pos: string
-}) => {
-  const { node, pos } = props
-  const checked = node.checked
-  return <AutoLayout
-    key={pos}
-    hoverStyle={{ fill: "#dddddd" }}
-    onClick={() => { console.log('click', pos) }}
-    width='fill-parent'
-  >
-    {checked && <Text fill="#ff0000">Checked</Text>}
-    {node.children.map((child, i) => {
-      return render(child, pos + "." + i)
-    })}
-  </AutoLayout>
-}
+type Updater = ReturnType<typeof useSyncedState<Root | null>>[1]
 
-const render = (root: Content, pos: string) => {
+const render = (root: Content, updater: Updater, pos: number[]) => {
   if (root.type === 'text') return root.value
 
   if (root.type === "heading") {
@@ -119,19 +103,19 @@ const render = (root: Content, pos: string) => {
       5: 18,
       6: 16
     }[root.depth]
-    return <Fragment key={pos}>
+    return <Fragment key={pos.join('.')}>
       <Text fontSize={fontSize}>
         {root.children.map((child, i) => {
-          return render(child, pos + "." + i)
+          return render(child, updater, [...pos, i])
         })}
       </Text>
     </Fragment>
   }
 
   if (root.type === 'paragraph')
-    return <Text fontSize={14} key={pos}>
+    return <Text fontSize={14} key={pos.join('.')}>
       {root.children.map((child, i) => {
-        return render(child, pos + "." + i)
+        return render(child, updater, [...pos, i])
       })}
     </Text>
 
@@ -141,23 +125,51 @@ const render = (root: Content, pos: string) => {
       horizontalAlignItems='start'
       verticalAlignItems='start'
       width='fill-parent'
-      key={pos}
+      key={pos.join('.')}
     >
       {root.children.map((child, i) => {
-        console.log(child)
-        return render(child, pos + "." + i)
+        return render(child, updater, [...pos, i])
       })}
     </AutoLayout>
 
   if (root.type === 'listItem') {
-    return <ListItem node={root} pos={pos} />
+    const checked = root.checked
+    console.log(pos, root)
+    return <AutoLayout
+      key={pos.join('.')}
+      hoverStyle={{ fill: "#eeeeee" }}
+      spacing={4}
+      onClick={() => {
+        updater(prev => produce(prev, (draft) => {
+          if (!draft) return
+          // @ts-ignore
+          const target: Content = pos.reduce((prevValue, currentPos) => {
+            console.log(prevValue, currentPos)
+            if (prevValue.children) {
+              const next = prevValue.children[currentPos]
+              return next
+            }
+            return prevValue
+          }, draft)
+          if (target.type === 'listItem') target.checked = !target.checked
+        }))
+
+      }}
+      width='fill-parent'
+    >
+      {checked && <Text fontSize={12} fill="#ff0000">Checked</Text>}
+      {root.children.map((child, i) => {
+        return render(child, updater, [...pos, i])
+      })}
+    </AutoLayout>
+
   }
 
   if (root.type === "thematicBreak") {
-    return <Rectangle key={pos} width='fill-parent' height={1} fill='#CCCCCC' />
+    return <Rectangle key={pos.join('.')} width='fill-parent' height={1} fill='#CCCCCC' />
   }
 
-  return <Fragment key={pos}>
+  return <Fragment key={pos.join('.')}>
     <Text fontSize={12}>{root.type}</Text>
     <Text fontSize={8}>{JSON.stringify(root, null, 2)}</Text>
   </Fragment>
