@@ -17,7 +17,10 @@ import { gfmToMarkdown } from 'mdast-util-gfm'
 
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(
-    props.data ? toMarkdown(props.data, { extensions: [gfmToMarkdown()] }) : ""
+    props.data ? toMarkdown(props.data, {
+      extensions: [gfmToMarkdown()],
+      fences: true
+    }) : ""
   )
   const handleUpdateDataButtonClick = useCallback(
     async function () {

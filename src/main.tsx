@@ -8,8 +8,6 @@ import { Root } from 'remark-parse/lib'
 import type { Content } from 'mdast'
 import produce from "immer"
 
-const defaultText = '# Hello World\nThis is figma widget\n- [ ] My Task\n- [x] done task'
-
 export default function () {
   widget.register(Notepad)
 }
@@ -29,7 +27,7 @@ function Notepad() {
   }: WidgetPropertyEvent): Promise<void> {
     await new Promise<void>(function (resolve: () => void): void {
       if (propertyName === 'edit') {
-        showUI({ width: 240, height: 400 }, { data })
+        showUI({ width: 300, height: 400 }, { data })
         once('UPDATE_DATA', function (data: any): void {
           console.log('ast:', data.ast)
           setData(data.ast)
@@ -48,7 +46,7 @@ function Notepad() {
       horizontalAlignItems='center'
       verticalAlignItems='center'
       height='hug-contents'
-      padding={24}
+      padding={32}
       cornerRadius={8}
       fill='#FFFFFF'
       spacing={12}
@@ -99,15 +97,15 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
   if (root.type === "heading") {
     const fontSize = {
-      1: 28,
-      2: 24,
-      3: 20,
-      4: 18,
+      1: 24,
+      2: 20,
+      3: 18,
+      4: 16,
       5: 16,
       6: 16
     }[root.depth]
     return <Fragment key={pos.join('.')}>
-      <Text fontSize={fontSize} fontWeight={700}>
+      <Text fontSize={fontSize} width='fill-parent' fontWeight={600}>
         {root.children.map((child, i) => {
           return render(child, updater, [...pos, i])
         })}
@@ -137,11 +135,12 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
   if (root.type === 'listItem') {
     const checked = root.checked
-    console.log(pos, root)
     return <AutoLayout
       key={pos.join('.')}
       hoverStyle={{ fill: "#eeeeee" }}
+      verticalAlignItems="center"
       spacing={4}
+      padding={{ vertical: 4 }}
       onClick={() => {
         updater(prev => produce(prev, (draft) => {
           if (!draft) return
@@ -160,7 +159,10 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
       }}
       width='fill-parent'
     >
-      {checked && <Text fontSize={12} fill="#ff0000">Checked</Text>}
+      {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
+      {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
+      {checked === null && <Text fontSize={16} fill="#ff0000">・</Text>}
+
       {root.children.map((child, i) => {
         return render(child, updater, [...pos, i])
       })}
