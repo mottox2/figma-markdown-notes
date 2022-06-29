@@ -5,6 +5,7 @@ import { once, showUI } from '@create-figma-plugin/utilities'
 const { widget } = figma
 const { AutoLayout, Text, useSyncedState, usePropertyMenu, Fragment, Rectangle } = widget
 import { Root } from 'remark-parse/lib'
+import type { ListItem, Content } from 'mdast'
 
 const defaultText = '# Hello World\nThis is figma widget\n- [ ] My Task\n- [x] done task'
 
@@ -66,8 +67,8 @@ function Notepad () {
         verticalAlignItems='start'
         spacing={8}
       >
-        {data && data.children.map(child => {
-          return render(child)
+        {data && data.children.map((child, pos) => {
+          return render(child, pos.toString())
         })}
         <AutoLayout
           direction='vertical'
@@ -87,11 +88,26 @@ function Notepad () {
   )
 }
 
-type ArrayElement<ArrayType extends readonly unknown[]> =
-  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+const ListItem = (props: {
+  node: ListItem
+  pos: string
+}) => {
+  const { node, pos } = props
+  const checked = node.checked
+  return <AutoLayout
+    key={pos}
+    hoverStyle={{ fill: "#dddddd" }}
+    onClick={() => { console.log('click', pos) }}
+    width='fill-parent'
+  >
+    {checked && <Text fill="#ff0000">Checked</Text>}
+    {node.children.map((child, i) => {
+      return render(child, pos + "." + i)
+    })}
+  </AutoLayout>
+}
 
-
-const render = (root: ArrayElement<Root['children']>, pos: string = "0") => {
+const render = (root: Content, pos: string) => {
   if (root.type === 'text') return root.value
 
   if (root.type === "heading") {
@@ -104,8 +120,7 @@ const render = (root: ArrayElement<Root['children']>, pos: string = "0") => {
       6: 16
     }[root.depth]
     return <Fragment key={pos}>
-      <Text fontSize={fontSize}
-        hoverStyle={{ fill: '#ffffff' }}>
+      <Text fontSize={fontSize}>
         {root.children.map((child, i) => {
           return render(child, pos + "." + i)
         })}
@@ -117,31 +132,25 @@ const render = (root: ArrayElement<Root['children']>, pos: string = "0") => {
     return <Text fontSize={14} key={pos}>
       {root.children.map((child, i) => {
         return render(child, pos + "." + i)
-        })}
+      })}
     </Text>
 
   if (root.type === 'list')
     return <AutoLayout
-        direction='vertical'
-        horizontalAlignItems='start'
-        verticalAlignItems='start'
-        width='fill-parent'
+      direction='vertical'
+      horizontalAlignItems='start'
+      verticalAlignItems='start'
+      width='fill-parent'
       key={pos}
-      >
+    >
       {root.children.map((child, i) => {
-          console.log(child)
-        return render(child, pos + "." + i)
-        })}
-    </AutoLayout>
-
-  if (root.type === 'listItem') {
-    const checked = root.checked
-    return <AutoLayout key={pos} hoverStyle={{ fill: "#000000" }} onClick={() => { console.log('click') }} width='fill-parent'>
-      {checked && <Text fill="#ff0000">Checked</Text>}
-      {root.children.map((child, i) => {
+        console.log(child)
         return render(child, pos + "." + i)
       })}
     </AutoLayout>
+
+  if (root.type === 'listItem') {
+    return <ListItem node={root} pos={pos} />
   }
 
   if (root.type === "thematicBreak") {
