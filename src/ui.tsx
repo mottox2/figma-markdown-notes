@@ -8,7 +8,7 @@ import {
 } from '@create-figma-plugin/ui'
 import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
-import { useCallback, useState } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
 import { proceccer } from './proceccer'
 import { toMarkdown } from 'mdast-util-to-markdown'
@@ -22,9 +22,26 @@ function Plugin(props: { data: any }) {
       fences: true
     }) : ""
   )
+  useEffect(() => {
+    // Workaround: because textbox multiline is not support onKeyDown
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === 'Enter') {
+        setText(prev => {
+          const result = proceccer.parse(prev)
+          emit('UPDATE_DATA', {
+            ast: result,
+            inspect: inspect(result)
+          })
+          return prev
+        })
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
   const handleUpdateDataButtonClick = useCallback(
     async function () {
-      const result = await proceccer.parse(text)
+      const result = proceccer.parse(text)
       console.log(inspect(result))
       emit('UPDATE_DATA', {
         ast: result,
