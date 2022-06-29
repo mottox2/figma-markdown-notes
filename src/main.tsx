@@ -135,38 +135,53 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
   if (root.type === 'listItem') {
     const checked = root.checked
-    return <AutoLayout
-      key={pos.join('.')}
-      hoverStyle={{ fill: "#eeeeee" }}
-      verticalAlignItems="center"
-      spacing={4}
-      padding={{ vertical: 4 }}
-      onClick={() => {
-        updater(prev => produce(prev, (draft) => {
-          if (!draft) return
-          // @ts-ignore
-          const target: Content = pos.reduce((prevValue, currentPos) => {
-            console.log(prevValue, currentPos)
-            if (prevValue.children) {
-              const next = prevValue.children[currentPos]
-              return next
-            }
-            return prevValue
-          }, draft)
-          if (target.type === 'listItem') target.checked = !target.checked
-        }))
 
-      }}
-      width='fill-parent'
-    >
-      {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
-      {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
-      {checked === null && <Text fontSize={16} fill="#ff0000">・</Text>}
-
+    return <Fragment key={pos.join('.')}>
       {root.children.map((child, i) => {
-        return render(child, updater, [...pos, i])
+        console.log(child.type)
+        if (child.type === "paragraph") {
+          return <AutoLayout
+            key={[pos, i].join('.')}
+            hoverStyle={{ fill: "#eeeeee" }}
+            verticalAlignItems="center"
+            spacing={8}
+            padding={{ vertical: 4, left: (pos.length - 2) * 12 }}
+            onClick={checked !== null ? () => {
+              updater(prev => produce(prev, (draft) => {
+                if (!draft) return
+                // @ts-ignore
+                const target: Content = pos.reduce((prevValue, currentPos) => {
+                  // console.log(prevValue, currentPos)
+                  if (prevValue.children) {
+                    const next = prevValue.children[currentPos]
+                    return next
+                  }
+                  return prevValue
+                }, draft)
+                if (target.type === 'listItem') target.checked = !target.checked
+              }))
+
+            } : undefined}
+            width='fill-parent'
+          >
+            {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
+            {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
+            {checked === null && <Text fontSize={16} fill="#ff0000">・</Text>}
+            {render(child, updater, [...pos, i])}
+          </AutoLayout>
+        } else if (child.type === 'list') {
+          return <AutoLayout
+            direction='vertical'
+            horizontalAlignItems='start'
+            verticalAlignItems='start'
+            width='fill-parent'
+            key={[pos, i].join('.')}
+          >
+            {render(child, updater, [...pos, i])}
+          </AutoLayout>
+        }
       })}
-    </AutoLayout>
+    </Fragment>
   }
 
   if (root.type === "thematicBreak") {
