@@ -43,11 +43,13 @@ function Notepad() {
   usePropertyMenu(items, onChange)
   return (
     <AutoLayout
+      width={360}
       direction='horizontal'
       horizontalAlignItems='center'
       verticalAlignItems='center'
       height='hug-contents'
-      padding={16}
+      padding={24}
+      cornerRadius={8}
       fill='#FFFFFF'
       spacing={12}
       effect={{
@@ -59,10 +61,11 @@ function Notepad() {
       }}
     >
       <AutoLayout
+        width='fill-parent'
         direction='vertical'
         horizontalAlignItems='start'
         verticalAlignItems='start'
-        spacing={8}
+        spacing={12}
       >
         {data && data.children.map((child, pos) => {
           return render(child, setData, [pos])
@@ -89,18 +92,22 @@ type Updater = ReturnType<typeof useSyncedState<Root | null>>[1]
 
 const render = (root: Content, updater: Updater, pos: number[]) => {
   if (root.type === 'text') return root.value
+  if (root.type === 'inlineCode') return root.value
+
+  if (root.type === 'strong' && root.children[0].type === 'text') return root.children[0].value
+  if (root.type === 'delete' && root.children[0].type === 'text') return root.children[0].value
 
   if (root.type === "heading") {
     const fontSize = {
-      1: 36,
-      2: 28,
-      3: 24,
-      4: 20,
-      5: 18,
+      1: 28,
+      2: 24,
+      3: 20,
+      4: 18,
+      5: 16,
       6: 16
     }[root.depth]
     return <Fragment key={pos.join('.')}>
-      <Text fontSize={fontSize}>
+      <Text fontSize={fontSize} fontWeight={700}>
         {root.children.map((child, i) => {
           return render(child, updater, [...pos, i])
         })}
@@ -109,7 +116,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   }
 
   if (root.type === 'paragraph')
-    return <Text fontSize={14} key={pos.join('.')}>
+    return <Text fontSize={14} lineHeight="150%" width='fill-parent' key={pos.join('.')}>
       {root.children.map((child, i) => {
         return render(child, updater, [...pos, i])
       })}
@@ -158,15 +165,40 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
         return render(child, updater, [...pos, i])
       })}
     </AutoLayout>
-
   }
 
   if (root.type === "thematicBreak") {
     return <Rectangle key={pos.join('.')} width='fill-parent' height={1} fill='#CCCCCC' />
   }
 
-  return <Fragment key={pos.join('.')}>
-    <Text fontSize={12}>{root.type}</Text>
-    <Text fontSize={8}>{JSON.stringify(root, null, 2)}</Text>
-  </Fragment>
+  if (root.type === "code") {
+    return <AutoLayout padding={12} fill="#f5f5f5" width="fill-parent">
+      <Text fontSize={12}>
+        {root.value}
+      </Text>
+    </AutoLayout>
+  }
+
+  if (root.type === "blockquote") {
+    return <AutoLayout spacing={8} width="fill-parent">
+      <Rectangle fill={'#ddd'} width={2} height="fill-parent" />
+      {root.children.map((child, i) => {
+        return render(child, updater, [...pos, i])
+      })}
+    </AutoLayout>
+  }
+
+  if ("children" in root) {
+    return <Fragment key={pos.join('.')}>
+      {root.children.map((child, i) => {
+        return render(child, updater, [...pos, i])
+      })}
+    </Fragment>
+  }
+
+  if ("value" in root) {
+    return root.value
+  }
+
+  return <Text fontSize={12}>{root.type} is not supported.</Text>
 }
