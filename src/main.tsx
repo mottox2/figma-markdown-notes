@@ -14,10 +14,9 @@ export default function () {
   widget.register(Notepad)
 }
 
-function Notepad () {
-  const [text, setText] = useSyncedState('text', defaultText)
+function Notepad() {
   const [data, setData] = useSyncedState<Root | null>('data', null)
-  const [inspect, setInspect] = useSyncedState('inspect', '[]')
+  const [inspect, setInspect] = useSyncedState('inspect', '')
   const items: Array<WidgetPropertyMenuItem> = [
     {
       itemType: 'action',
@@ -30,10 +29,7 @@ function Notepad () {
   }: WidgetPropertyEvent): Promise<void> {
     await new Promise<void>(function (resolve: () => void): void {
       if (propertyName === 'edit') {
-        showUI({ width: 240, height: 400 }, { text })
-        once('UPDATE_TEXT', function (text: string): void {
-          setText(text)
-        })
+        showUI({ width: 240, height: 400 }, { data })
         once('UPDATE_DATA', function (data: any): void {
           console.log('ast:', data.ast)
           setData(data.ast)

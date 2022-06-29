@@ -11,14 +11,18 @@ import { h } from 'preact'
 import { useCallback, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
 import { proceccer } from './proceccer'
+import { toMarkdown } from 'mdast-util-to-markdown'
+import { gfmToMarkdown } from 'mdast-util-gfm'
 
-function Plugin (props: { text: string }) {
-  const [text, setText] = useState(props.text)
+
+function Plugin(props: { data: any }) {
+  const [text, setText] = useState(
+    props.data ? toMarkdown(props.data, { extensions: [gfmToMarkdown()] }) : ""
+  )
   const handleUpdateDataButtonClick = useCallback(
     async function () {
       const result = await proceccer.parse(text)
       console.log(inspect(result))
-      emit('UPDATE_TEXT', text)
       emit('UPDATE_DATA', {
         ast: result,
         inspect: inspect(result)
