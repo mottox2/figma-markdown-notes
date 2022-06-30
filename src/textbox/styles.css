@@ -1,0 +1,37 @@
+/* https://github.com/yuanqing/create-figma-plugin/blob/4986cf468dcdc9a7880496bf295196f0147e055b/packages/ui/src/components/textbox/textbox-multiline/textbox-multiline.css */
+.container {
+  position: relative;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 6px 0 6px var(--space-extra-small);
+  background-color: transparent;
+  border-radius: var(--border-radius-2);
+  color: var(--figma-color-text);
+  resize: none;
+}
+.textarea::placeholder {
+  color: var(--figma-color-text-tertiary);
+}
+
+.border {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-2);
+  pointer-events: none;
+}
+.container:not(.disabled):hover .border {
+  border-color: var(--figma-color-border);
+}
+.container:not(.disabled) .textarea:focus ~ .border {
+  top: -1px;
+  bottom: -1px;
+  border: 2px solid var(--figma-color-border-brand-strong);
+}

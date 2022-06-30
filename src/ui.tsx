@@ -2,17 +2,16 @@ import {
   Button,
   Container,
   render,
-  TextboxMultiline,
-  useInitialFocus,
   VerticalSpace
 } from '@create-figma-plugin/ui'
 import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
-import { useCallback, useEffect, useState } from 'preact/hooks'
+import { useCallback, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
 import { proceccer } from './proceccer'
 import { toMarkdown } from 'mdast-util-to-markdown'
 import { gfmToMarkdown } from 'mdast-util-gfm'
+import { Textbox } from './textbox'
 
 
 function Plugin(props: { data: any }) {
@@ -22,23 +21,7 @@ function Plugin(props: { data: any }) {
       fences: true
     }) : ""
   )
-  useEffect(() => {
-    // Workaround: because textbox multiline is not support onKeyDown
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.key === 'Enter') {
-        setText(prev => {
-          const result = proceccer.parse(prev)
-          emit('UPDATE_DATA', {
-            ast: result,
-            inspect: inspect(result)
-          })
-          return prev
-        })
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+
   const handleUpdateDataButtonClick = useCallback(
     async function () {
       const result = proceccer.parse(text)
@@ -50,17 +33,28 @@ function Plugin(props: { data: any }) {
     },
     [text]
   )
+
   return (
-    <Container space="medium">
+    <Container space="medium" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <VerticalSpace space='medium' />
-      <TextboxMultiline
-        {...useInitialFocus()}
-        onValueInput={setText}
+      <Textbox
         value={text}
-        placeholder="# Your idea"
-        rows={19}
+        style={{ flex: 1 }}
+        onInput={(e) => {
+          setText(e.currentTarget.value)
+        }}
+        placeholder="# Your Idea"
+        onKeyDown={(e) => {
+          if (e.metaKey && e.key === 'Enter') {
+            const result = proceccer.parse(text)
+            emit('UPDATE_DATA', {
+              ast: result,
+              inspect: inspect(result)
+            })
+          }
+        }}
       />
-      <VerticalSpace space='medium' />
+      <VerticalSpace space='small' />
       <Button fullWidth onClick={handleUpdateDataButtonClick}>
         Update
       </Button>
