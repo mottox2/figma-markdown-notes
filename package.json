@@ -25,10 +25,11 @@
   },
   "figma-plugin": {
     "editorType": [
-      "figma"
+      "figma",
+      "figjam"
     ],
     "containsWidget": true,
-    "id": "simple-markdown-notes",
+    "id": "1124191550873158701",
     "name": "Simple Markdown Notes",
     "main": "src/main.tsx",
     "ui": "src/ui.tsx"
