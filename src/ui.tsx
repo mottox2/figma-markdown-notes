@@ -52,16 +52,17 @@ function Plugin(props: { data: any }) {
   )
   return (
     <Container space="medium">
-      <VerticalSpace space='large' />
+      <VerticalSpace space='medium' />
       <TextboxMultiline
         {...useInitialFocus()}
         onValueInput={setText}
         value={text}
-        rows={15}
+        placeholder="# Your idea"
+        rows={19}
       />
-      <VerticalSpace space='large' />
+      <VerticalSpace space='medium' />
       <Button fullWidth onClick={handleUpdateDataButtonClick}>
-        Update Data
+        Update
       </Button>
       <VerticalSpace space='small' />
     </Container>

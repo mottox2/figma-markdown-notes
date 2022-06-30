@@ -17,6 +17,27 @@ const gray = {
   100: '#f3f4f6',
 }
 
+const shadows: WidgetJSX.Effect[] = [
+  {
+    type: 'drop-shadow',
+    color: { r: 0, g: 0, b: 0, a: 0.09 },
+    blur: 2,
+    offset: { x: 0, y: 2 }
+  },
+  {
+    type: 'drop-shadow',
+    color: { r: 0, g: 0, b: 0, a: 0.1 },
+    blur: 1,
+    offset: { x: 0, y: 1 }
+  },
+  {
+    type: 'drop-shadow',
+    color: { r: 0, g: 0, b: 0, a: 0.1 },
+    blur: 0,
+    offset: { x: 0, y: 0 }
+  }
+]
+
 export default function () {
   widget.register(Notepad)
 }
@@ -48,6 +69,23 @@ function Notepad() {
   }
 
   usePropertyMenu(items, onChange)
+
+  if (!data || data.children.length === 0) {
+    return <AutoLayout
+      width={360}
+      direction='horizontal'
+      horizontalAlignItems='start'
+      verticalAlignItems='center'
+      height='hug-contents'
+      padding={32}
+      cornerRadius={8}
+      fill='#FFFFFF'
+      spacing={12}
+      effect={shadows}
+    >
+      <Text fill={gray[500]}>Empty note</Text>
+    </AutoLayout>
+  }
   return (
     <AutoLayout
       width={360}
@@ -59,13 +97,7 @@ function Notepad() {
       cornerRadius={8}
       fill='#FFFFFF'
       spacing={12}
-      effect={{
-        type: 'drop-shadow',
-        color: { r: 0, g: 0, b: 0, a: 0.2 },
-        offset: { x: 0, y: 0 },
-        blur: 2,
-        spread: 2
-      }}
+      effect={shadows}
     >
       <AutoLayout
         width='fill-parent'
@@ -77,7 +109,7 @@ function Notepad() {
         {data && data.children.map((child, pos) => {
           return render(child, setData, [pos])
         })}
-        <AutoLayout
+        {/* <AutoLayout
           direction='vertical'
           horizontalAlignItems='start'
           verticalAlignItems='start'
@@ -89,7 +121,7 @@ function Notepad() {
               </Text>
             ) : null
           })}
-        </AutoLayout>
+        </AutoLayout> */}
       </AutoLayout>
     </AutoLayout>
   )
@@ -103,6 +135,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
   if (root.type === 'strong' && root.children[0].type === 'text') return root.children[0].value
   if (root.type === 'delete' && root.children[0].type === 'text') return root.children[0].value
+  if (root.type === 'link' && root.children[0].type === 'text') return root.children[0].value
 
   if (root.type === "heading") {
     const fontSize = {
@@ -122,12 +155,25 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
     </Fragment>
   }
 
-  if (root.type === 'paragraph')
+  if (root.type === 'paragraph') {
+    const child = root.children[0];
+    if (child && child.type === 'image') {
+      return <Text fontSize={12} lineHeight="150%" fill={gray[700]} width='fill-parent' key={pos.join('.')}>
+        Image is not supported.({child.alt || ''})
+      </Text>
+    }
+
     return <Text fontSize={14} lineHeight="150%" fill={gray[700]} width='fill-parent' key={pos.join('.')}>
       {root.children.map((child, i) => {
         return render(child, updater, [...pos, i])
       })}
     </Text>
+  }
+
+
+  if (root.type === "html") {
+    return <Text fontSize={14} fill={gray[700]} width='fill-parent'>{root.value}</Text>
+  }
 
   if (root.type === 'list')
     return <AutoLayout
@@ -214,6 +260,14 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
         return render(child, updater, [...pos, i])
       })}
     </AutoLayout>
+  }
+
+  if (root.type === 'table') {
+    return <Text fontSize={12}>Table is not yet supported.</Text>
+  }
+
+  if (root.type === 'image') {
+    return <Text fontSize={12}>Image is not yet supported.</Text>
   }
 
   if ("children" in root) {
