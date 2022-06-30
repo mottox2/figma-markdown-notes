@@ -8,6 +8,15 @@ import { Root } from 'remark-parse/lib'
 import type { Content } from 'mdast'
 import produce from "immer"
 
+// tailwind colors
+const gray = {
+  900: '#0f172a',
+  700: '#334155',
+  500: '#64748b',
+  300: '#cbd5e1',
+  100: '#f3f4f6',
+}
+
 export default function () {
   widget.register(Notepad)
 }
@@ -75,7 +84,7 @@ function Notepad() {
         >
           {inspect.split('\n').map((line, i) => {
             return line ? (
-              <Text fontSize={8} fill="#888" horizontalAlignText='left' width={200} key={i}>
+              <Text fontSize={8} fill={gray[500]} horizontalAlignText='left' width={200} key={i}>
                 {line}
               </Text>
             ) : null
@@ -105,7 +114,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
       6: 16
     }[root.depth]
     return <Fragment key={pos.join('.')}>
-      <Text fontSize={fontSize} width='fill-parent' fontWeight={600}>
+      <Text fontSize={fontSize} width='fill-parent' fill={gray[900]} fontWeight={600}>
         {root.children.map((child, i) => {
           return render(child, updater, [...pos, i])
         })}
@@ -114,7 +123,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   }
 
   if (root.type === 'paragraph')
-    return <Text fontSize={14} lineHeight="150%" width='fill-parent' key={pos.join('.')}>
+    return <Text fontSize={14} lineHeight="150%" fill={gray[700]} width='fill-parent' key={pos.join('.')}>
       {root.children.map((child, i) => {
         return render(child, updater, [...pos, i])
       })}
@@ -142,7 +151,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
         if (child.type === "paragraph") {
           return <AutoLayout
             key={[pos, i].join('.')}
-            hoverStyle={{ fill: "#eeeeee" }}
+            hoverStyle={{ fill: gray[100] }}
             verticalAlignItems="center"
             spacing={8}
             padding={{ vertical: 4, left: (pos.length - 2) * 12 }}
@@ -185,7 +194,9 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   }
 
   if (root.type === "thematicBreak") {
-    return <Rectangle key={pos.join('.')} width='fill-parent' height={1} fill='#CCCCCC' />
+    return <AutoLayout padding={{ vertical: 12 }} width='fill-parent'>
+      <Rectangle key={pos.join('.')} width='fill-parent' height={1} fill={gray[300]} />
+    </AutoLayout>
   }
 
   if (root.type === "code") {
