@@ -13,13 +13,12 @@ import { toMarkdown } from 'mdast-util-to-markdown'
 import { gfmToMarkdown } from 'mdast-util-gfm'
 import { Textbox } from './textbox'
 
-
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(
     props.data ? toMarkdown(props.data, {
       extensions: [gfmToMarkdown()],
       fences: true,
-      listItemIndent: 'one'
+      listItemIndent: 'one',
     }) : ""
   )
 
