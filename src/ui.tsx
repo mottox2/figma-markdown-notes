@@ -18,7 +18,8 @@ function Plugin(props: { data: any }) {
   const [text, setText] = useState(
     props.data ? toMarkdown(props.data, {
       extensions: [gfmToMarkdown()],
-      fences: true
+      fences: true,
+      listItemIndent: 'one'
     }) : ""
   )
 
@@ -44,8 +45,8 @@ function Plugin(props: { data: any }) {
           setText(e.currentTarget.value)
         }}
         placeholder="# Your Idea"
-        onKeyDown={(e) => {
-          if (e.metaKey && e.key === 'Enter') {
+        handleReturn={(e) => {
+          if (e.metaKey) {
             const result = proceccer.parse(text)
             emit('UPDATE_DATA', {
               ast: result,
