@@ -18,7 +18,8 @@ function Plugin(props: { data: any }) {
   const [text, setText] = useState(
     props.data ? toMarkdown(props.data, {
       extensions: [gfmToMarkdown()],
-      fences: true
+      fences: true,
+      listItemIndent: 'one'
     }) : ""
   )
 
