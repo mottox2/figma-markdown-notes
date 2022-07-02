@@ -3,7 +3,7 @@ import remarkParse from "remark-parse"
 import remarkGfm from "remark-gfm"
 import { Node, Parent } from "unist";
 import { visit } from 'unist-util-visit'
-import { List } from "mdast-util-from-markdown/lib";
+import { List, ListItem } from "mdast-util-from-markdown/lib";
 
 export const proceccer = unified().use(remarkParse).use(remarkGfm)
 
@@ -12,6 +12,14 @@ const noSpread = () => {
     visit(tree, 'list', (node: List, index: number, parent: Parent) => {
       if (!("children" in parent)) return
       const newNode: List = {
+        ...node,
+        spread: false
+      }
+      parent.children[index] = newNode
+    })
+    visit(tree, 'listItem', (node: ListItem, index: number, parent: Parent) => {
+      if (!("children" in parent)) return
+      const newNode: ListItem = {
         ...node,
         spread: false
       }
