@@ -163,6 +163,14 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
       </Text>
     }
 
+    if (root.children.length === 1 && child.type === 'link') {
+      // console.log(child)
+      const href = child.url
+      return <Text href={href} fontSize={14} lineHeight="150%" fill={gray[700]} textDecoration='underline' width='fill-parent' key={pos.join('.')}>
+        {child.children[0].type === 'text' ? child.children[0].value : ''}
+      </Text>
+    }
+
     return <Text fontSize={14} lineHeight="150%" fill={gray[700]} width='fill-parent' key={pos.join('.')}>
       {root.children.map((child, i) => {
         return render(child, updater, [...pos, i])
@@ -193,7 +201,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
     return <Fragment key={pos.join('.')}>
       {root.children.map((child, i) => {
-        console.log(child.type)
+        // console.log(child.type)
         if (child.type === "paragraph") {
           return <AutoLayout
             key={[pos, i].join('.')}

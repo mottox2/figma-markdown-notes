@@ -60,10 +60,8 @@ const replaceText = (el: HTMLTextAreaElement, str: string) => {
   inserted = document.execCommand('insertText', false, str)
 }
 
-export const Textbox = ({
-  ...props
-}: Props) => {
-  const { style, onKeyDown, handleReturn, ...other } = props
+export const Textbox = (props: Props) => {
+  const { style, handleReturn, ...other } = props
 
   const ref = useRef<HTMLTextAreaElement>(null)
   useEffect(() => {
