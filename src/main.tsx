@@ -178,9 +178,8 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
     </Text>
   }
 
-
   if (root.type === "html") {
-    return <Text fontSize={14} fill={gray[700]} width='fill-parent'>{root.value}</Text>
+    return <Text fontSize={14} fill={gray[700]} width='fill-parent' key={pos.join('.')}>{root.value}</Text>
   }
 
   if (root.type === 'list')
@@ -248,13 +247,13 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   }
 
   if (root.type === "thematicBreak") {
-    return <AutoLayout padding={{ vertical: 12 }} width='fill-parent'>
+    return <AutoLayout padding={{ vertical: 12 }} width='fill-parent' key={pos.join('.')}>
       <Rectangle key={pos.join('.')} width='fill-parent' height={1} fill={gray[300]} />
     </AutoLayout>
   }
 
   if (root.type === "code") {
-    return <AutoLayout padding={12} fill="#f5f5f5" width="fill-parent">
+    return <AutoLayout padding={12} fill="#f5f5f5" width="fill-parent" key={pos.join('.')}>
       <Text fontSize={12}>
         {root.value}
       </Text>
@@ -262,7 +261,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   }
 
   if (root.type === "blockquote") {
-    return <AutoLayout spacing={8} width="fill-parent">
+    return <AutoLayout spacing={8} width="fill-parent" key={pos.join('.')}>
       <Rectangle fill={'#ddd'} width={2} height="fill-parent" />
       {root.children.map((child, i) => {
         return render(child, updater, [...pos, i])
@@ -271,11 +270,11 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   }
 
   if (root.type === 'table') {
-    return <Text fontSize={12}>Table is not yet supported.</Text>
+    return <Text fontSize={12} key={pos.join('.')}>Table is not yet supported.</Text>
   }
 
   if (root.type === 'image') {
-    return <Text fontSize={12}>Image is not yet supported.</Text>
+    return <Text fontSize={12} key={pos.join('.')}>Image is not yet supported.</Text>
   }
 
   if ("children" in root) {
