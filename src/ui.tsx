@@ -38,8 +38,8 @@ function Plugin(props: { data: any }) {
   )
 
   return (
-    <Container space="medium" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <VerticalSpace space='medium' />
+    <Container space="small" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <VerticalSpace space='small' />
       <Textbox
         value={text}
         style={{ flex: 1 }}
@@ -57,7 +57,7 @@ function Plugin(props: { data: any }) {
           }
         }}
       />
-      <VerticalSpace space='small' />
+      <VerticalSpace space='extraSmall' />
       <Button fullWidth onClick={handleUpdateDataButtonClick}>
         Update
       </Button>
