@@ -7,7 +7,8 @@ type Props = ComponentProps<'textarea'> & {
 }
 
 // https://github.com/fukayatsu/esarea/blob/master/src/js/esarea.coffee
-const getCurrentLine = (text: string, el: HTMLTextAreaElement) => {
+const getCurrentLine = (el: HTMLTextAreaElement) => {
+  const text = el.value;
   const selection = getSelection();
   if (!selection) return
   if (el.selectionStart != el.selectionEnd) return
@@ -26,8 +27,9 @@ const getCurrentLine = (text: string, el: HTMLTextAreaElement) => {
 }
 
 // 引数はeventにする
-const handleTab = (event: JSX.TargetedKeyboardEvent<HTMLTextAreaElement>, value: string, el: HTMLTextAreaElement) => {
-  const line = getCurrentLine(value, el)
+const handleTab = (event: JSX.TargetedKeyboardEvent<HTMLTextAreaElement>) => {
+  const el = event.currentTarget;
+  const line = getCurrentLine(el)
   // ListItemのときのみ動作させる
   if (!line) return
   const originalStart = el.selectionStart
@@ -73,7 +75,7 @@ export const Textbox = (props: Props) => {
       if (e.key === 'Enter') handleReturn(e)
       if (e.key === 'Tab') {
         if (ref.current)
-          handleTab(e, props.value as string, ref.current);
+          handleTab(e);
         e.preventDefault()
       }
     }, [handleReturn])
