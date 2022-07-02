@@ -109,7 +109,8 @@ export const Textbox = (props: Props) => {
 
   const handleKeyDown = useCallback(
     (e: JSX.TargetedKeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter') {
+      // FIXME: Use (deprecated) keyCode to ignore Enter during IME conversion.
+      if (e.keyCode === 13) {
         handleEnter(e)
         handleReturn(e)
       }
