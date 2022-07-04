@@ -13,6 +13,7 @@ const gray = {
   900: '#0f172a',
   700: '#334155',
   500: '#64748b',
+  400: '#9ca3af',
   300: '#cbd5e1',
   100: '#f3f4f6',
 }
@@ -200,11 +201,11 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
         return <Fragment key={itemPos.join('.')}>
           {item.children.map((child, j) => {
+            const paddingTop = checked !== null ? 3 : (ordered ? 2 : 4)
             if (child.type === "paragraph") {
               return <AutoLayout
                 key={[...itemPos, j].join('.')}
                 hoverStyle={{ fill: gray[100] }}
-                verticalAlignItems="center"
                 spacing={8}
                 padding={{ vertical: 4, left: (pos.length - 1) * 12 }}
                 onClick={checked !== null ? () => {
@@ -225,10 +226,12 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
                 } : undefined}
                 width='fill-parent'
               >
-                {ordered && checked === null && <Text fontSize={16} fill={gray[500]}>{counter}.</Text>}
-                {!ordered && checked === null && <Text fontSize={16} fill={gray[500]}>・</Text>}
-                {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
-                {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
+                <AutoLayout padding={{ top: paddingTop }}>
+                  {ordered && checked === null && <Text fontSize={14} fill={gray[400]} width={16} horizontalAlignText='right'>{counter}.</Text>}
+                  {!ordered && checked === null && <Text fontSize={14} fill={gray[400]} width={16} horizontalAlignText="right">*</Text>}
+                  {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
+                  {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
+                </AutoLayout>
                 {render(child, updater, [...itemPos, j])}
               </AutoLayout>
             } else if (child.type === 'list') {
