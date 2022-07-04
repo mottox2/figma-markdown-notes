@@ -182,7 +182,9 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
     return <Text fontSize={14} fill={gray[700]} width='fill-parent' key={pos.join('.')}>{root.value}</Text>
   }
 
-  if (root.type === 'list')
+  if (root.type === 'list') {
+    const ordered = root.ordered;
+    let counter = 0;
     return <AutoLayout
       direction='vertical'
       horizontalAlignItems='start'
@@ -190,60 +192,60 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
       width='fill-parent'
       key={pos.join('.')}
     >
-      {root.children.map((child, i) => {
-        return render(child, updater, [...pos, i])
+      {root.children.map((item, i) => {
+        if (item.type !== "listItem") return null
+        const checked = item.checked
+        const itemPos = [...pos, i]
+        counter++
+
+        return <Fragment key={itemPos.join('.')}>
+          {item.children.map((child, j) => {
+            if (child.type === "paragraph") {
+              return <AutoLayout
+                key={[...itemPos, j].join('.')}
+                hoverStyle={{ fill: gray[100] }}
+                verticalAlignItems="center"
+                spacing={8}
+                padding={{ vertical: 4, left: (pos.length - 1) * 12 }}
+                onClick={checked !== null ? () => {
+                  updater(prev => produce(prev, (draft) => {
+                    if (!draft) return
+                    // @ts-ignore
+                    const target: Content = itemPos.reduce((prevValue, currentPos) => {
+                      // console.log(prevValue, currentPos)
+                      if (prevValue.children) {
+                        const next = prevValue.children[currentPos]
+                        return next
+                      }
+                      return prevValue
+                    }, draft)
+                    if (target.type === 'listItem') target.checked = !target.checked
+                  }))
+
+                } : undefined}
+                width='fill-parent'
+              >
+                {ordered && checked === null && <Text fontSize={16} fill={gray[500]}>{counter}.</Text>}
+                {!ordered && checked === null && <Text fontSize={16} fill={gray[500]}>・</Text>}
+                {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
+                {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
+                {render(child, updater, [...itemPos, j])}
+              </AutoLayout>
+            } else if (child.type === 'list') {
+              return <AutoLayout
+                direction='vertical'
+                horizontalAlignItems='start'
+                verticalAlignItems='start'
+                width='fill-parent'
+                key={[...itemPos, j].join('.')}
+              >
+                {render(child, updater, [...itemPos, j])}
+              </AutoLayout>
+            }
+          })}
+        </Fragment>
       })}
     </AutoLayout>
-
-  if (root.type === 'listItem') {
-    const checked = root.checked
-
-    return <Fragment key={pos.join('.')}>
-      {root.children.map((child, i) => {
-        // console.log(child.type)
-        if (child.type === "paragraph") {
-          return <AutoLayout
-            key={[pos, i].join('.')}
-            hoverStyle={{ fill: gray[100] }}
-            verticalAlignItems="center"
-            spacing={8}
-            padding={{ vertical: 4, left: (pos.length - 2) * 12 }}
-            onClick={checked !== null ? () => {
-              updater(prev => produce(prev, (draft) => {
-                if (!draft) return
-                // @ts-ignore
-                const target: Content = pos.reduce((prevValue, currentPos) => {
-                  // console.log(prevValue, currentPos)
-                  if (prevValue.children) {
-                    const next = prevValue.children[currentPos]
-                    return next
-                  }
-                  return prevValue
-                }, draft)
-                if (target.type === 'listItem') target.checked = !target.checked
-              }))
-
-            } : undefined}
-            width='fill-parent'
-          >
-            {checked && <Text fontSize={16} fill="#ff0000">✅</Text>}
-            {checked === false && <Text fontSize={16} fill="#ff0000">☑</Text>}
-            {checked === null && <Text fontSize={16} fill="#ff0000">・</Text>}
-            {render(child, updater, [...pos, i])}
-          </AutoLayout>
-        } else if (child.type === 'list') {
-          return <AutoLayout
-            direction='vertical'
-            horizontalAlignItems='start'
-            verticalAlignItems='start'
-            width='fill-parent'
-            key={[pos, i].join('.')}
-          >
-            {render(child, updater, [...pos, i])}
-          </AutoLayout>
-        }
-      })}
-    </Fragment>
   }
 
   if (root.type === "thematicBreak") {
