@@ -18,11 +18,13 @@
     "@create-figma-plugin/tsconfig": "^2.1.0",
     "@figma/plugin-typings": "1.47.0",
     "@figma/widget-typings": "1.3.0",
-    "typescript": "^4"
+    "typescript": "^4",
+    "vitest": "^0.17.0"
   },
   "scripts": {
     "build": "build-figma-plugin --typecheck --minify",
-    "watch": "build-figma-plugin --typecheck --watch"
+    "watch": "build-figma-plugin --typecheck --watch",
+    "test": "vitest"
   },
   "figma-plugin": {
     "editorType": [

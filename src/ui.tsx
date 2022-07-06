@@ -8,9 +8,7 @@ import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
 import { useCallback, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
-import { proceccer, transformer } from './proceccer'
-import { toMarkdown } from 'mdast-util-to-markdown'
-import { gfmToMarkdown } from 'mdast-util-gfm'
+import { proceccer, transformer, mdast2Md } from './proceccer'
 import { Textbox } from './textbox'
 
 const md2Ast = (md: string) => {
@@ -18,13 +16,7 @@ const md2Ast = (md: string) => {
 }
 
 function Plugin(props: { data: any }) {
-  const [text, setText] = useState(
-    props.data ? toMarkdown(props.data, {
-      extensions: [gfmToMarkdown()],
-      fences: true,
-      listItemIndent: 'one',
-    }) : ''
-  )
+  const [text, setText] = useState(props.data ? mdast2Md(props.data) : '')
 
   const handleUpdateDataButtonClick = useCallback(
     async function () {
