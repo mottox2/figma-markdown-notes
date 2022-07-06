@@ -1,6 +1,6 @@
 import { proceccer, transformer, mdast2Md } from "./proceccer"
 import { describe, it, expect } from 'vitest'
-import type { List, Root, Paragraph } from 'mdast'
+import type { List, Root } from 'mdast'
 
 describe('markdown', () => {
   it('strip spread in List', async () => {
@@ -29,22 +29,5 @@ describe('markdown', () => {
 * List1
 * List2
 `)
-  })
-
-  it('split link in paragraph', async () => {
-    const md = `Link
-https://mottox2.com
-hello world
-`
-
-    const ast = proceccer.parse(md);
-    expect(ast.type).toBe('root')
-    expect(ast.children.length).toBe(1)
-    const child = ast.children[0] as Paragraph
-    console.log(child)
-    expect(child.type).toBe('paragraph')
-    expect(child.children.length).toBe(3)
-
-    // TODO
   })
 })

@@ -1,9 +1,9 @@
 import { unified } from "unified"
 import remarkParse from "remark-parse"
 import remarkGfm from "remark-gfm"
-import { Node, Parent, Root } from "unist";
+import { Node, Parent } from "unist";
+import { Root, List, ListItem } from "mdast"
 import { visit } from 'unist-util-visit'
-import { List, ListItem } from "mdast-util-from-markdown/lib";
 import { toMarkdown } from 'mdast-util-to-markdown'
 import { gfmToMarkdown } from 'mdast-util-gfm'
 
