@@ -22,16 +22,16 @@ const md2Ast = (md: string) => {
   return transformer.runSync(proceccer.parse(md))
 }
 
-const getMetaKey = (navigator: Navigator) => {
+const getShortcut = (navigator: Navigator) => {
   const platform: string = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
   const isMac = !!(new RegExp(/mac|Mac/).exec(platform))
-  const metaKey = isMac ? '⌘' : "Alt"
-  return metaKey
+  const shortcut = isMac ? '⌘↩' : "Alt + Enter"
+  return shortcut
 }
 
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(props.data ? mdast2Md(props.data) : '')
-  const metaKey = getMetaKey(navigator)
+  const shortcut = getShortcut(navigator)
 
   const handleUpdateDataButtonClick = useCallback(
     async function () {
@@ -65,7 +65,7 @@ function Plugin(props: { data: any }) {
         }}
       />
       <VerticalSpace space='extraSmall' />
-      <Tooltip label={`Update Content　${metaKey}+Enter`}>
+      <Tooltip label={`Update Content　${shortcut}`}>
         <Button fullWidth onClick={handleUpdateDataButtonClick}>
           Update
         </Button>
