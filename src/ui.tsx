@@ -6,17 +6,32 @@ import {
 } from '@create-figma-plugin/ui'
 import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
-import { useCallback, useState } from 'preact/hooks'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
 import { proceccer, transformer, mdast2Md } from './proceccer'
 import { Textbox } from './textbox'
+import { Tooltip } from './tooltip'
+
+declare global {
+  interface Navigator {
+    readonly userAgentData: any
+  }
+}
 
 const md2Ast = (md: string) => {
   return transformer.runSync(proceccer.parse(md))
 }
 
+const getMetaKey = (navigator: Navigator) => {
+  const platform: string = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
+  const isMac = !!(new RegExp(/mac|Mac/).exec(platform))
+  const metaKey = isMac ? '⌘' : "Alt"
+  return metaKey
+}
+
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(props.data ? mdast2Md(props.data) : '')
+  const metaKey = getMetaKey(navigator)
 
   const handleUpdateDataButtonClick = useCallback(
     async function () {
@@ -50,9 +65,12 @@ function Plugin(props: { data: any }) {
         }}
       />
       <VerticalSpace space='extraSmall' />
-      <Button fullWidth onClick={handleUpdateDataButtonClick}>
-        Update
-      </Button>
+      <Tooltip label={`Update Content　${metaKey}+Enter`}>
+        <Button fullWidth onClick={handleUpdateDataButtonClick}>
+          Update
+        </Button>
+      </Tooltip>
+
       <VerticalSpace space='small' />
     </Container>
   )
