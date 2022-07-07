@@ -25,7 +25,7 @@ const md2Ast = (md: string) => {
 const getShortcut = (navigator: Navigator) => {
   const platform: string = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
   const isMac = !!(new RegExp(/mac|Mac/).exec(platform))
-  const shortcut = isMac ? '⌘↩' : "Alt + Enter"
+  const shortcut = isMac ? '⌘↩' : "Alt+Enter"
   return shortcut
 }
 
