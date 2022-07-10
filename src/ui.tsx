@@ -25,14 +25,13 @@ const md2Ast = (md: string) => {
 const detectMac = (navigator: Navigator) => {
   const platform: string = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
   const isMac = !!(new RegExp(/mac|Mac/).exec(platform))
-  const shortcut = isMac ? '⌘↩' : "Ctrl+Enter"
-  return shortcut
+  return isMac
 }
 
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(props.data ? mdast2Md(props.data) : '')
   const isMac = detectMac(navigator)
-  const shortcut = isMac ? '⌘↩' : "Alt+Enter"
+  const shortcut = isMac ? '⌘↩' : "Ctrl+Enter"
 
   const handleUpdateDataButtonClick = useCallback(
     async function () {
