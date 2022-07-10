@@ -22,16 +22,17 @@ const md2Ast = (md: string) => {
   return transformer.runSync(proceccer.parse(md))
 }
 
-const getShortcut = (navigator: Navigator) => {
+const detectMac = (navigator: Navigator) => {
   const platform: string = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
   const isMac = !!(new RegExp(/mac|Mac/).exec(platform))
-  const shortcut = isMac ? '⌘↩' : "Alt+Enter"
+  const shortcut = isMac ? '⌘↩' : "Ctrl+Enter"
   return shortcut
 }
 
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(props.data ? mdast2Md(props.data) : '')
-  const shortcut = getShortcut(navigator)
+  const isMac = detectMac(navigator)
+  const shortcut = isMac ? '⌘↩' : "Alt+Enter"
 
   const handleUpdateDataButtonClick = useCallback(
     async function () {
@@ -55,7 +56,7 @@ function Plugin(props: { data: any }) {
         }}
         placeholder="# Your Idea"
         handleReturn={(e) => {
-          if (e.metaKey) {
+          if ((isMac && e.metaKey) || (!isMac && e.ctrlKey)) {
             const result = md2Ast(text)
             emit('UPDATE_DATA', {
               ast: result,
