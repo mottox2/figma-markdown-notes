@@ -1,12 +1,17 @@
 /** @jsx figma.widget.h */
 
-import { once, showUI } from '@create-figma-plugin/utilities'
+import { on, once, showUI } from '@create-figma-plugin/utilities'
 
 const { widget } = figma
 const { AutoLayout, Text, useSyncedState, usePropertyMenu, Fragment, Rectangle } = widget
 import { Root } from 'remark-parse/lib'
 import type { Content } from 'mdast'
 import produce from "immer"
+
+const scaleIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M18 17.625V18H6V6H9.75V6.75H6.75V17.25H17.25V14.25H18V17.625ZM10.125 14.25H9.75V9.75H10.5V12.9697L16.7197 6.75H13.5V6H18V10.5H17.25V7.28033L11.0303 13.5H14.25V14.25H10.125Z" fill="white"/>
+</svg>`
+
 
 // tailwind colors
 const gray = {
@@ -43,37 +48,62 @@ export default function () {
   widget.register(Notepad)
 }
 
+const sizes = {
+  "small": 360,
+  "medium": 540,
+  "large": 720
+}
+
 function Notepad() {
   const [data, setData] = useSyncedState<Root | null>('data', null)
   const [inspect, setInspect] = useSyncedState('inspect', '')
+
+  const [size, setSize] = useSyncedState<keyof typeof sizes>('experimental-size', 'small')
+  const toggleSize = () => {
+    if (size === 'small') setSize("medium")
+    if (size === 'medium') setSize("large")
+    if (size === 'large') setSize("small")
+  }
+  const width = sizes[size]
+
   const items: Array<WidgetPropertyMenuItem> = [
     {
       itemType: 'action',
       propertyName: 'edit',
-      tooltip: 'Edit'
+      tooltip: 'Edit content'
+    },
+    {
+      itemType: 'action',
+      icon: scaleIcon,
+      propertyName: "scale",
+      tooltip: "Change size"
     }
   ]
+
   async function onChange ({
     propertyName
   }: WidgetPropertyEvent): Promise<void> {
-    await new Promise<void>(function (resolve: () => void): void {
-      if (propertyName === 'edit') {
-        showUI({ width: 300, height: 400 }, { data })
+    if (propertyName === 'scale') {
+      return toggleSize()
+    }
+    if (propertyName === 'edit') {
+      await new Promise<void>(function (resolve: () => void): void {
+        showUI({ width: 320, height: 400 }, { data })
         once('UPDATE_DATA', function (data: any): void {
           console.log('ast:', data.ast)
           setData(data.ast)
           setInspect(data.inspect)
           resolve()
         })
-      }
-    })
+      })
+    }
   }
 
   usePropertyMenu(items, onChange)
 
   if (!data || data.children.length === 0) {
     return <AutoLayout
-      width={360}
+      width={width}
       direction='horizontal'
       horizontalAlignItems='start'
       verticalAlignItems='center'
@@ -89,7 +119,7 @@ function Notepad() {
   }
   return (
     <AutoLayout
-      width={360}
+      width={width}
       direction='horizontal'
       horizontalAlignItems='center'
       verticalAlignItems='center'
