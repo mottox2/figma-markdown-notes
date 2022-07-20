@@ -162,7 +162,8 @@ type Updater = ReturnType<typeof useSyncedState<Root | null>>[1]
 
 const render = (root: Content, updater: Updater, pos: number[]) => {
   if (root.type === 'text') return root.value
-  if (root.type === 'inlineCode') return root.value
+  if (root.type === 'inlineCode')
+    return <Span fontFamily='Source Code Pro'>{root.value}</Span>
 
   if (root.type === 'strong' && root.children[0].type === 'text')
     return <Span fontWeight={700}>{root.children[0].value}</Span>
@@ -299,7 +300,7 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
   if (root.type === "code") {
     return <AutoLayout padding={12} fill="#f5f5f5" width="fill-parent" key={pos.join('.')}>
-      <Text fontSize={12}>
+      <Text fontSize={12} fontFamily="Source Code Pro">
         {root.value}
       </Text>
     </AutoLayout>
