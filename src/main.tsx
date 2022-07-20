@@ -3,7 +3,7 @@
 import { on, once, showUI } from '@create-figma-plugin/utilities'
 
 const { widget } = figma
-const { AutoLayout, Text, useSyncedState, usePropertyMenu, Fragment, Rectangle } = widget
+const { AutoLayout, Text, useSyncedState, usePropertyMenu, Fragment, Rectangle, Image, Span } = widget
 import { Root } from 'remark-parse/lib'
 import type { Content } from 'mdast'
 import produce from "immer"
@@ -164,7 +164,10 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
   if (root.type === 'text') return root.value
   if (root.type === 'inlineCode') return root.value
 
-  if (root.type === 'strong' && root.children[0].type === 'text') return root.children[0].value
+  if (root.type === 'strong' && root.children[0].type === 'text')
+    return <Span fontWeight={700}>{root.children[0].value}</Span>
+  if (root.type === 'emphasis' && root.children[0].type === 'text')
+    return <Span italic>{root.children[0].value}</Span>
   if (root.type === 'delete' && root.children[0].type === 'text') return root.children[0].value
   if (root.type === 'link' && root.children[0].type === 'text') return root.children[0].value
 
@@ -188,6 +191,13 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
 
   if (root.type === 'paragraph') {
     const child = root.children[0];
+
+    // if (root.children.length === 1 && child.type === 'image') {
+    //   // console.log(child)
+    //   const { url, alt } = child
+    //   return <Image src={url} width={120} height={120} tooltip={alt || undefined} />
+    // }
+
     if (child && child.type === 'image') {
       return <Text fontSize={12} lineHeight="150%" fill={gray[700]} width='fill-parent' key={pos.join('.')}>
         Image is not supported.({child.alt || ''})
