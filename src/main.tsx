@@ -169,8 +169,12 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
     return <Span fontWeight={700}>{root.children[0].value}</Span>
   if (root.type === 'emphasis' && root.children[0].type === 'text')
     return <Span italic>{root.children[0].value}</Span>
-  if (root.type === 'delete' && root.children[0].type === 'text') return root.children[0].value
-  if (root.type === 'link' && root.children[0].type === 'text') return root.children[0].value
+  if (root.type === 'delete' && root.children[0].type === 'text')
+    return <Span textDecoration='strikethrough'>{root.children[0].value}</Span>
+  if (root.type === 'link' && root.children[0].type === 'text')
+    return <Span href={root.url} fontSize={14} fill={gray[700]} textDecoration='underline' key={pos.join('.')}>
+      {root.children[0].value}
+    </Span>
 
   if (root.type === "heading") {
     const fontSize = {
@@ -202,14 +206,6 @@ const render = (root: Content, updater: Updater, pos: number[]) => {
     if (child && child.type === 'image') {
       return <Text fontSize={12} lineHeight="150%" fill={gray[700]} width='fill-parent' key={pos.join('.')}>
         Image is not supported.({child.alt || ''})
-      </Text>
-    }
-
-    if (root.children.length === 1 && child.type === 'link') {
-      // console.log(child)
-      const href = child.url
-      return <Text href={href} fontSize={14} lineHeight="150%" fill={gray[700]} textDecoration='underline' width='fill-parent' key={pos.join('.')}>
-        {child.children[0].type === 'text' ? child.children[0].value : ''}
       </Text>
     }
 
