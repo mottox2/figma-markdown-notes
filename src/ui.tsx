@@ -9,8 +9,8 @@ import { h } from 'preact'
 import { useCallback, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
 import { proceccer, transformer, mdast2Md } from './proceccer'
-import { Textbox } from './textbox'
-import { Tooltip } from './tooltip'
+import { Textbox } from './components/ui/textbox'
+import { Tooltip } from './components/ui/tooltip'
 
 declare global {
   interface Navigator {
