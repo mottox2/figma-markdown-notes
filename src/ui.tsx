@@ -6,7 +6,7 @@ import {
 } from '@create-figma-plugin/ui'
 import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import { useCallback, useState } from 'preact/hooks'
 import { inspect } from "unist-util-inspect"
 import { proceccer, transformer, mdast2Md } from './proceccer'
 import { Textbox } from './textbox'
@@ -18,24 +18,23 @@ declare global {
   }
 }
 
-const md2Ast = (md: string) => {
-  return transformer.runSync(proceccer.parse(md))
+function parseMarkdownToAST(markdown: string) {
+  return transformer.runSync(proceccer.parse(markdown))
 }
 
-const detectMac = (navigator: Navigator) => {
+function detectMacOS(navigator: Navigator): boolean {
   const platform: string = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
-  const isMac = !!(new RegExp(/mac|Mac/).exec(platform))
-  return isMac
+  return /mac|Mac/.test(platform)
 }
 
 function Plugin(props: { data: any }) {
   const [text, setText] = useState(props.data ? mdast2Md(props.data) : '')
-  const isMac = detectMac(navigator)
+  const isMac = detectMacOS(navigator)
   const shortcut = isMac ? '⌘↩' : "Ctrl+Enter"
 
   const handleUpdateDataButtonClick = useCallback(
     async function () {
-      const result = md2Ast(text)
+      const result = parseMarkdownToAST(text)
       emit('UPDATE_DATA', {
         ast: result,
         inspect: inspect(result)
@@ -56,7 +55,7 @@ function Plugin(props: { data: any }) {
         placeholder="# Your Idea"
         handleReturn={(e) => {
           if ((isMac && e.metaKey) || (!isMac && e.ctrlKey)) {
-            const result = md2Ast(text)
+            const result = parseMarkdownToAST(text)
             emit('UPDATE_DATA', {
               ast: result,
               inspect: inspect(result)
